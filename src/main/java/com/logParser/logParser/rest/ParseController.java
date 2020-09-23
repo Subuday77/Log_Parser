@@ -22,8 +22,11 @@ public class ParseController {
             String[] lines = logToParse.split("\n");
             for (String line : lines) {
                 if (line.contains("Got operator response") || lineToParse.contains("Got operator response")) {
+
+
                     if (line.indexOf("{") > 0 && line.indexOf("}") > 0) {
                         answer = answer.concat(parseLine(line));
+
                     } else {
                         lineToParse = lineToParse.concat(line);
                         if (lineToParse.indexOf("{") > 0 && lineToParse.indexOf("}") > 0) {
@@ -43,7 +46,7 @@ public class ParseController {
         line = line.substring(line.indexOf("{"));
         JSONObject toParse = new JSONObject(line);
         try {
-            return (toParse.getString("transactionId") + "\t" + toParse.getString("timestamp") + "\n");
+            return (toParse.getString("transactionId") + "\t" + toParse.getBigInteger("timestamp") + "\n");
         } catch (JSONException e) {
             return "";
         }
