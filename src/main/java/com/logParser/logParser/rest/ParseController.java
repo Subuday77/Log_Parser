@@ -1,8 +1,10 @@
 package com.logParser.logParser.rest;
 
 
+import com.logParser.logParser.beans.SearchData;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,21 +14,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/parse")
 public class ParseController {
 
+    @Autowired
+    SearchData searchData;
+
     @PostMapping("/timestamps")
-    public ResponseEntity<?> parseForTs(@RequestBody String logToParse) throws JSONException {
+    public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) throws JSONException {
+//       System.out.println(searchData.getSearchType());
         String answer = "";
         String lineToParse = "";
-        if (logToParse.isBlank()) {
+        String searchType = "Got operator response";
+        if (searchData.getSearchType() == 2) {
+            searchType = "Posting financial post to url";
+        }
+        if (searchData.getLogToParse().isBlank()) {
             answer = "Empty log field";
         } else {
-            String[] lines = logToParse.split("\n");
+            String[] lines = searchData.getLogToParse().split("\n");
             for (String line : lines) {
-                if (line.contains("Got operator response") || lineToParse.contains("Got operator response")) {
-
-
+                if (line.contains(searchType) || lineToParse.contains(searchType)) {
                     if (line.indexOf("{") > 0 && line.indexOf("}") > 0) {
                         answer = answer.concat(parseLine(line));
-
                     } else {
                         lineToParse = lineToParse.concat(line);
                         if (lineToParse.indexOf("{") > 0 && lineToParse.indexOf("}") > 0) {
