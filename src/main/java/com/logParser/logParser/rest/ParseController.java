@@ -1,6 +1,7 @@
 package com.logParser.logParser.rest;
 
 
+import com.logParser.logParser.beans.Answer;
 import com.logParser.logParser.beans.SearchData;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,10 +17,12 @@ public class ParseController {
 
     @Autowired
     SearchData searchData;
+    @Autowired
+    Answer answer;
 
     @PostMapping("/timestamps")
     public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) throws JSONException {
-//       System.out.println(searchData.getSearchType());
+        //System.out.println(searchData.getAdditionalParam());
         String answer = "";
         String lineToParse = "";
         String searchType = "Got operator response";
@@ -33,11 +36,19 @@ public class ParseController {
             for (String line : lines) {
                 if (line.contains(searchType) || lineToParse.contains(searchType)) {
                     if (line.indexOf("{") > 0 && line.indexOf("}") > 0) {
-                        answer = answer.concat(parseLine(line));
+                        if (searchData.getAdditionalParam() == 0 ||
+                                line.contains(String.valueOf(searchData.getAdditionalParam())) ||
+                                lineToParse.contains(String.valueOf(searchData.getAdditionalParam()))) {
+                            answer = answer.concat(parseLine(line));
+                        }
                     } else {
                         lineToParse = lineToParse.concat(line);
                         if (lineToParse.indexOf("{") > 0 && lineToParse.indexOf("}") > 0) {
-                            answer = answer.concat(parseLine(lineToParse));
+                            if (searchData.getAdditionalParam() == 0 ||
+                                    line.contains(String.valueOf(searchData.getAdditionalParam())) ||
+                                    lineToParse.contains(String.valueOf(searchData.getAdditionalParam()))) {
+                                answer = answer.concat(parseLine(lineToParse));
+                            }
                             lineToParse = "";
                         }
                     }

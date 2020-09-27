@@ -4,12 +4,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SearchData {
-    private long operatorId;
+    private long additionalParam;
     private int searchType;
     private String logToParse;
 
-    public SearchData(long operatorId, int searchType, String logToParse) {
-        this.operatorId = operatorId;
+    public SearchData(long additionalParam, int searchType, String logToParse) {
+        this.additionalParam = additionalParam;
         this.searchType = searchType;
         this.logToParse = logToParse;
     }
@@ -17,12 +17,12 @@ public class SearchData {
     public SearchData() {
     }
 
-    public long getOperatorId() {
-        return operatorId;
+    public long getAdditionalParam() {
+        return additionalParam;
     }
 
-    public void setOperatorId(long operatorId) {
-        this.operatorId = operatorId;
+    public void setAdditionalParam(long additionalParam) {
+        this.additionalParam = additionalParam;
     }
 
     public int getSearchType() {
