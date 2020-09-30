@@ -5,17 +5,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Answer {
-    private long operatorId;
-    private long roundId;
+    private String operatorId;
     private String initialToken;
     private String sessionToken;
     private String uid;
-    private double balance;
+    private String balance;
     private String currency;
 
-    public Answer(long operatorId, long roundId, String initialToken, String sessionToken, String uid, double balance, String currency) {
+    public Answer(String operatorId,  String initialToken, String sessionToken, String uid, String balance, String currency) {
         this.operatorId = operatorId;
-        this.roundId = roundId;
+
         this.initialToken = initialToken;
         this.sessionToken = sessionToken;
         this.uid = uid;
@@ -26,19 +25,13 @@ public class Answer {
     public Answer() {
     }
 
-    public long getRoundId() {
-        return roundId;
-    }
 
-    public void setRoundId(long roundId) {
-        this.roundId = roundId;
-    }
 
-    public long getOperatorId() {
+    public String getOperatorId() {
         return operatorId;
     }
 
-    public void setOperatorId(long operatorId) {
+    public void setOperatorId(String operatorId) {
         this.operatorId = operatorId;
     }
 
@@ -66,11 +59,11 @@ public class Answer {
         this.uid = uid;
     }
 
-    public double getBalance() {
+    public String getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(String balance) {
         this.balance = balance;
     }
 

@@ -10,6 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
+
+import static com.logParser.logParser.beans.Constants.KEYS;
+
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/parse")
@@ -21,8 +27,8 @@ public class ParseController {
     Answer answer;
 
     @PostMapping("/timestamps")
-    public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) throws JSONException {
-        //System.out.println(searchData.getAdditionalParam());
+    public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) {
+//       System.out.println(searchData.getSearchType());
         String answer = "";
         String lineToParse = "";
         String searchType = "Got operator response";
@@ -59,12 +65,104 @@ public class ParseController {
         return new ResponseEntity<String>(answer, HttpStatus.OK);
     }
 
-    private static String parseLine(String line) throws JSONException {
+    @PostMapping("/logins")
+    public ResponseEntity<?> parseForLogin(@RequestBody SearchData searchData) {
+        ArrayList<Answer> answers = new ArrayList<>();
+        String lineToParse = "";
+        Map initialTokenMap = new TreeMap<Long, String>();
+        if (searchData.getLogToParse().isBlank()) {
+            return new ResponseEntity<String>("Empty log field", HttpStatus.NO_CONTENT);
+        } else {
+            String[] lines = searchData.getLogToParse().split("\n");
+            for (String line : lines) {
+                if (line.contains("Arriving authetication request")) {
+                    initialTokenMap = updateInitialTokenMap(initialTokenMap, line);
+                }
+                if (line.contains("Got auth response") && (searchData.getAdditionalParam()==0 || line.contains(String.valueOf(searchData.getAdditionalParam())))) {
+                    answers.add(parseLineForLogin(line, initialTokenMap));
+                }
+            }
+        }
+        return new ResponseEntity<ArrayList<Answer>>(answers, HttpStatus.OK);
+    }
 
+    private Answer parseLineForLogin(String line, Map initialTokenMap) {
         line = line.substring(line.indexOf("{"));
         JSONObject toParse = new JSONObject(line);
+
+        Answer answer = new Answer();
+        for (String key : KEYS) {
+            switch (key) {
+                case "operatorId":
+                    try {
+                        answer.setOperatorId(String.valueOf(toParse.getLong(key)));
+                    } catch (JSONException e) {
+                        answer.setOperatorId("Can't define " + key);
+                    }
+                    break;
+                case "playerTokenAtLaunch":
+                    try {
+                        answer.setInitialToken(toParse.getString(key));
+                    } catch (JSONException e) {
+                        try {
+                            answer.setInitialToken((String) initialTokenMap.get(toParse.getLong("operatorId")));
+                        } catch (JSONException ex) {
+                            answer.setInitialToken("Can't define " + key);
+                        }
+                    }
+                    break;
+                case "uid":
+                    try {
+                        answer.setUid(toParse.getString(key));
+                    } catch (JSONException e) {
+                        answer.setUid("Can't define " + key);
+                    }
+                    break;
+                case "token":
+                    try {
+                        answer.setSessionToken(toParse.getString(key));
+                    } catch (JSONException e) {
+                        answer.setSessionToken("Can't define " + key);
+                    }
+                    break;
+                case "currency":
+                    try {
+                        answer.setCurrency(toParse.getString(key));
+                    } catch (JSONException e) {
+                        answer.setCurrency("Can't define " + key);
+                    }
+                    break;
+                case "balance":
+                    try {
+                        answer.setBalance(String.valueOf(toParse.getDouble(key)));
+                    } catch (JSONException e) {
+                        answer.setBalance("Can't define " + key);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return answer;
+    }
+
+    private Map updateInitialTokenMap(Map initialTokenMap, String line) {
+        line = line.substring(line.indexOf("{"));
+        JSONObject toParse = new JSONObject(line);
+        long key = toParse.getLong("OperatorID");
+        initialTokenMap.put(key, toParse.getString("Token"));
+
+        return initialTokenMap;
+    }
+
+    private static String parseLine(String line) {
+       // System.out.println(line);
+        line = line.substring(line.indexOf("{"));
         try {
+            JSONObject toParse = new JSONObject(line);
+            //System.out.println(toParse.getString("transactionId") + "\t" + toParse.getBigInteger("timestamp"));
             return (toParse.getString("transactionId") + "\t" + toParse.getBigInteger("timestamp") + "\n");
+
         } catch (JSONException e) {
             return "";
         }
