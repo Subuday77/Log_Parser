@@ -146,6 +146,8 @@ public class ParseController {
         return answer;
     }
 
+
+
     private Map updateInitialTokenMap(Map initialTokenMap, String line) {
         line = line.substring(line.indexOf("{"));
         JSONObject toParse = new JSONObject(line);
