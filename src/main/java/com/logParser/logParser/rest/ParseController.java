@@ -39,8 +39,9 @@ public class ParseController {
             answer = "Empty log field";
         } else {
             String[] lines = searchData.getLogToParse().split("\n");
+            int i = 1;
             for (String line : lines) {
-                if (line.contains(searchType) || lineToParse.contains(searchType)) {
+                if ((line.contains(searchType) || lineToParse.contains(searchType)) && (line.contains("{") || lineToParse.contains("{"))) {
                     if (line.indexOf("{") > 0 && line.indexOf("}") > 0) {
                         if (searchData.getAdditionalParam() == 0 ||
                                 line.contains(String.valueOf(searchData.getAdditionalParam())) ||
@@ -54,6 +55,7 @@ public class ParseController {
                                     line.contains(String.valueOf(searchData.getAdditionalParam())) ||
                                     lineToParse.contains(String.valueOf(searchData.getAdditionalParam()))) {
                                 answer = answer.concat(parseLine(lineToParse));
+                                lineToParse = "";
                             }
                             lineToParse = "";
                         }
@@ -78,7 +80,7 @@ public class ParseController {
                 if (line.contains("Arriving authetication request")) {
                     initialTokenMap = updateInitialTokenMap(initialTokenMap, line);
                 }
-                if (line.contains("Got auth response") && (searchData.getAdditionalParam()==0 || line.contains(String.valueOf(searchData.getAdditionalParam())))) {
+                if (line.contains("Got auth response") && (searchData.getAdditionalParam() == 0 || line.contains(String.valueOf(searchData.getAdditionalParam())))) {
                     answers.add(parseLineForLogin(line, initialTokenMap));
                 }
             }
@@ -147,7 +149,6 @@ public class ParseController {
     }
 
 
-
     private Map updateInitialTokenMap(Map initialTokenMap, String line) {
         line = line.substring(line.indexOf("{"));
         JSONObject toParse = new JSONObject(line);
@@ -158,7 +159,7 @@ public class ParseController {
     }
 
     private static String parseLine(String line) {
-       // System.out.println(line);
+        // System.out.println(line);
         line = line.substring(line.indexOf("{"));
         try {
             JSONObject toParse = new JSONObject(line);
