@@ -1,6 +1,5 @@
 package com.logParser.logParser.beans;
 
-
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,7 +11,7 @@ public class Answer {
     private String balance;
     private String currency;
 
-    public Answer(String operatorId,  String initialToken, String sessionToken, String uid, String balance, String currency) {
+    public Answer(String operatorId, String initialToken, String sessionToken, String uid, String balance, String currency) {
         this.operatorId = operatorId;
 
         this.initialToken = initialToken;
