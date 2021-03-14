@@ -25,7 +25,9 @@ public class ParseController {
 
     @PostMapping("/timestamps")
     public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) {
-//       System.out.println(searchData.getSearchType());
+        if (searchData.getLogToParse().startsWith("**")) {
+            searchData.setLogToParse(prepareProductionLog(searchData.getLogToParse()));
+        }
         String answer = "";
         String searchType = "Got operator response";
         if (searchData.getSearchType() == 2) {
@@ -41,6 +43,9 @@ public class ParseController {
 
     @PostMapping("/logins")
     public ResponseEntity<?> parseForLogin(@RequestBody SearchData searchData) {
+        if (searchData.getLogToParse().startsWith("**")) {
+            searchData.setLogToParse(prepareProductionLog(searchData.getLogToParse()));
+        }
         ArrayList<Answer> answers = new ArrayList<>();
         String lineToParse = "";
         Map initialTokenMap = new TreeMap<Long, String>();
@@ -49,7 +54,7 @@ public class ParseController {
         } else {
             String[] lines = searchData.getLogToParse().split("\n");
             for (String line : lines) {
-                if (line.contains("Arriving authentication request")) {
+                if (line.contains("Arriving authentication request") || line.contains("Arriving authetication request")) {
                     initialTokenMap = updateInitialTokenMap(initialTokenMap, line);
                 }
                 if (line.contains("Got auth response") && (searchData.getAdditionalParam() == 0 || line.contains(String.valueOf(searchData.getAdditionalParam())))) {
@@ -104,6 +109,9 @@ public class ParseController {
     }
 
     private static HashMap<String, String> prepareLines(int requestType, long operatorId, SearchData searchData) {
+        if (searchData.getLogToParse().startsWith("**")) {
+            searchData.setLogToParse(prepareProductionLog(searchData.getLogToParse()));
+        }
         String lineToParse = "";
         String result = "";
         int resultCount = 0;
@@ -157,6 +165,10 @@ public class ParseController {
                         responsesCount++;
                     } else {
                         String[] x = line.split("Post to operator took ");
+//                        System.out.println(x[1].strip());
+//                        if (x[1].endsWith("|")) {
+//                            x[1] = x[1].substring(0, x[1].length() - 1).trim();
+//                        }
                         int responseTime = Integer.parseInt(x[1]);
                         timeCount++;
                         timeSum = timeSum + responseTime;
@@ -226,13 +238,16 @@ public class ParseController {
         response.put("rollbackCount", String.valueOf(rollbackCount));
         response.put("minResponseTime", String.valueOf(minResponseTime));
         response.put("maxResponseTime", String.valueOf(maxResponseTime));
-        response.put("averageResponseTime", String.valueOf(timeSum/timeCount));
+        response.put("averageResponseTime", String.valueOf(timeSum / timeCount));
         response.put("result", result);
         return response;
     }
 
     private static synchronized Object getTSOperatorIdRoundId(int dataType, SearchData searchData, String
             searchType, long operatorId) {
+        if (searchData.getLogToParse().startsWith("**")) {
+            searchData.setLogToParse(prepareProductionLog(searchData.getLogToParse()));
+        }
         String lineToParse = "";
         String answer = "";
         HashSet<String> temp = new HashSet<>();
@@ -356,11 +371,11 @@ public class ParseController {
     }
 
     private static String parseLine(String line) {
-        // System.out.println(line);
+
         line = line.substring(line.indexOf("{"));
         try {
             JSONObject toParse = new JSONObject(line);
-            //System.out.println(toParse.getString("transactionId") + "\t" + toParse.getBigInteger("timestamp"));
+
             return (toParse.getString("transactionId") + "\t" + toParse.getBigInteger("timestamp") + "\n");
 
         } catch (JSONException e) {
@@ -370,11 +385,11 @@ public class ParseController {
     }
 
     private static String getOperatorId(String line) {
-        // System.out.println(line);
+
         line = line.substring(line.indexOf("{"));
         try {
             JSONObject toParse = new JSONObject(line);
-            //System.out.println(toParse.getString("transactionId") + "\t" + toParse.getBigInteger("timestamp"));
+
             return (String.valueOf(toParse.getLong("operatorId")));
 
         } catch (JSONException e) {
@@ -383,7 +398,7 @@ public class ParseController {
     }
 
     private static String getRoundId(String line, long operatorId) {
-        // System.out.println(line);
+
         line = line.substring(line.indexOf("{"));
         try {
             JSONObject toParse = new JSONObject(line);
@@ -398,4 +413,18 @@ public class ParseController {
         }
     }
 
+    private static String prepareProductionLog(String log) {
+        String[] lines = log.split("\n");
+        List linesArray = Arrays.asList(lines);
+        Collections.reverse(linesArray);
+        log = "";
+        for (Object line : linesArray) {
+            String[] x = String.valueOf(line).split("\\|", 3);
+            if(x[x.length - 1].endsWith("|")) {
+                x[x.length - 1] = x[x.length - 1].substring(0, x[x.length - 1].length() - 1).trim();
+            }
+            log = log.concat(x[x.length - 1]+"\n");
+        }
+        return log;
+    }
 }
