@@ -49,7 +49,7 @@ public class ParseController {
         } else {
             String[] lines = searchData.getLogToParse().split("\n");
             for (String line : lines) {
-                if (line.contains("Arriving authetication request")) {
+                if (line.contains("Arriving authentication request")) {
                     initialTokenMap = updateInitialTokenMap(initialTokenMap, line);
                 }
                 if (line.contains("Got auth response") && (searchData.getAdditionalParam() == 0 || line.contains(String.valueOf(searchData.getAdditionalParam())))) {
