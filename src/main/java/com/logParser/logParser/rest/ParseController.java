@@ -60,7 +60,7 @@ public class ParseController {
         return new ResponseEntity<ArrayList<Answer>>(answers, HttpStatus.OK);
     }
 
-    @PostMapping("/stress")
+    @PostMapping("/operators")
     public ResponseEntity<?> getOperatorsForStress(@RequestBody SearchData searchData) {
         HashSet<String> temp = new HashSet<>();
         ArrayList<String> operatorIDs = new ArrayList<>();
@@ -126,7 +126,7 @@ public class ParseController {
                     (lineToParse.contains("Got operator response") || lineToParse.contains("Posting financial post to url"))
                             && (line.contains("{") || lineToParse.contains("{"))) || line.contains("Post to operator took"))) {
                 if ((line.indexOf("{") > 0 && line.indexOf("}") > 0) && Arrays.stream(rounds).anyMatch(line::contains) && line.contains(String.valueOf(operatorId))
-                        || (line.contains("Post to operator took") && !line.contains("null")) && line.contains(String.valueOf(operatorId))) {
+                        || (line.contains("Post to operator took") && !line.contains("null")) && Arrays.stream(rounds).anyMatch(line::contains) && line.contains(String.valueOf(operatorId))) {
                     switch (requestType) {
                         case 1:
                             String[] x = line.split(":", 4);
@@ -220,7 +220,7 @@ public class ParseController {
         HashMap<String, String> response = new HashMap<>();
         response.put("resultCount", String.valueOf(resultCount));
         response.put("requestsCount", String.valueOf(requestsCount));
-        response.put("responsesCount", String.valueOf(requestsCount));
+        response.put("responsesCount", String.valueOf(responsesCount));
         response.put("debitCount", String.valueOf(debitCount));
         response.put("creditCount", String.valueOf(creditCount));
         response.put("rollbackCount", String.valueOf(rollbackCount));
