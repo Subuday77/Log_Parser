@@ -5,16 +5,20 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 
 @Component
-public class Round {
+public class RoundST {
     private long roundId;
+    private int usersCount;
+    private int transactionsCount;
     private ArrayList<UserST> usersST;
 
-    public Round(long roundId, ArrayList<UserST> usersST) {
+    public RoundST(long roundId, int usersCount, int transactionsCount, ArrayList<UserST> usersST) {
         this.roundId = roundId;
+        this.usersCount = usersCount;
+        this.transactionsCount = transactionsCount;
         this.usersST = usersST;
     }
 
-    public Round() {
+    public RoundST() {
     }
 
     public long getRoundId() {
@@ -33,10 +37,29 @@ public class Round {
         this.usersST = usersST;
     }
 
+
+    public int getTransactionsCount() {
+        return transactionsCount;
+    }
+
+    public void setTransactionsCount(int transactionsCount) {
+        this.transactionsCount = transactionsCount;
+    }
+
+    public int getUsersCount() {
+        return usersCount;
+    }
+
+    public void setUsersCount(int usersCount) {
+        this.usersCount = usersCount;
+    }
+
     @Override
     public String toString() {
         return "Round{" +
                 "roundId=" + roundId +
+                ", usersCount=" + usersCount +
+                ", transactionsCount=" + transactionsCount +
                 ", usersST=" + usersST +
                 '}';
     }

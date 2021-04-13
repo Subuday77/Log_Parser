@@ -7,23 +7,30 @@ import java.util.ArrayList;
 @Component
 public class UserST {
     private String uid;
-    private ArrayList<Transaction>transactionsOriginal;
-    private ArrayList<Transaction>transactionsSorted;
-    private int numberOfBalanceJumps;
-    private boolean lastBalanceCorrect;
-    private boolean correctBalanceExists;
-
-    public UserST(String uid, ArrayList<Transaction> transactionsOriginal, ArrayList<Transaction> transactionsSorted,
-                  int numberOfBalanceJumps, boolean lastBalanceCorrect, boolean correctBalanceExists) {
-        this.uid = uid;
-        this.transactionsOriginal = transactionsOriginal;
-        this.transactionsSorted = transactionsSorted;
-        this.numberOfBalanceJumps = numberOfBalanceJumps;
-        this.lastBalanceCorrect = lastBalanceCorrect;
-        this.correctBalanceExists = correctBalanceExists;
-    }
+    private int transactionsCount;
+    private int debitsCount;
+    private int creditsCount;
+    private double expectedBalance;
+    private double lastShownBalance;
+    private double lastReturnedBalance;
+    private String sortArrowsTime = "login";
+    private ArrayList<TransactionST> transactionsST;
+    private ArrayList<TransactionST> issuedTransactionsST;
 
     public UserST() {
+    }
+
+    public UserST(String uid, int transactionsCount, int debitsCount, int creditsCount, double expectedBalance,
+                  double lastShownBalance, double lastReturnedBalance, ArrayList<TransactionST> transactionsST, ArrayList<TransactionST> issuedTransactionsST) {
+        this.uid = uid;
+        this.transactionsCount = transactionsCount;
+        this.debitsCount = debitsCount;
+        this.creditsCount = creditsCount;
+        this.expectedBalance = expectedBalance;
+        this.lastShownBalance = lastShownBalance;
+        this.lastReturnedBalance = lastReturnedBalance;
+        this.transactionsST = transactionsST;
+        this.issuedTransactionsST = issuedTransactionsST;
     }
 
     public String getUid() {
@@ -34,55 +41,90 @@ public class UserST {
         this.uid = uid;
     }
 
-    public ArrayList<Transaction> getTransactionsOriginal() {
-        return transactionsOriginal;
+    public int getDebitsCount() {
+        return debitsCount;
     }
 
-    public void setTransactionsOriginal(ArrayList<Transaction> transactionsOriginal) {
-        this.transactionsOriginal = transactionsOriginal;
+    public void setDebitsCount(int debitsCount) {
+        this.debitsCount = debitsCount;
     }
 
-    public ArrayList<Transaction> getTransactionsSorted() {
-        return transactionsSorted;
+    public int getCreditsCount() {
+        return creditsCount;
     }
 
-    public void setTransactionsSorted(ArrayList<Transaction> transactionsSorted) {
-        this.transactionsSorted = transactionsSorted;
+    public void setCreditsCount(int creditsCount) {
+        this.creditsCount = creditsCount;
     }
 
-    public int getNumberOfBalanceJumps() {
-        return numberOfBalanceJumps;
+    public double getExpectedBalance() {
+        return expectedBalance;
     }
 
-    public void setNumberOfBalanceJumps(int numberOfBalanceJumps) {
-        this.numberOfBalanceJumps = numberOfBalanceJumps;
+    public void setExpectedBalance(double expectedBalance) {
+        this.expectedBalance = expectedBalance;
     }
 
-    public boolean isLastBalanceCorrect() {
-        return lastBalanceCorrect;
+    public double getLastShownBalance() {
+        return lastShownBalance;
     }
 
-    public void setLastBalanceCorrect(boolean lastBalanceCorrect) {
-        this.lastBalanceCorrect = lastBalanceCorrect;
+    public void setLastShownBalance(double lastShownBalance) {
+        this.lastShownBalance = lastShownBalance;
     }
 
-    public boolean isCorrectBalanceExists() {
-        return correctBalanceExists;
+    public double getLastReturnedBalance() {
+        return lastReturnedBalance;
     }
 
-    public void setCorrectBalanceExists(boolean correctBalanceExists) {
-        this.correctBalanceExists = correctBalanceExists;
+    public void setLastReturnedBalance(double lastReturnedBalance) {
+        this.lastReturnedBalance = lastReturnedBalance;
+    }
+
+    public ArrayList<TransactionST> getTransactions() {
+        return transactionsST;
+    }
+
+    public void setTransactions(ArrayList<TransactionST> transactionsTS) {
+        this.transactionsST = transactionsTS;
+    }
+
+    public int getTransactionsCount() {
+        return transactionsCount;
+    }
+
+    public void setTransactionsCount(int transactionsCount) {
+        this.transactionsCount = transactionsCount;
+    }
+
+    public ArrayList<TransactionST> getIssuedTransactions() {
+        return issuedTransactionsST;
+    }
+
+    public void setIssuedTransactions(ArrayList<TransactionST> issuedTransactionsTS) {
+        this.issuedTransactionsST = issuedTransactionsTS;
     }
 
     @Override
     public String toString() {
         return "UserST{" +
                 "uid='" + uid + '\'' +
-                ", transactionsOriginal=" + transactionsOriginal +
-                ", transactionsSorted=" + transactionsSorted +
-                ", numberOfBalanceJumps=" + numberOfBalanceJumps +
-                ", lastBalanceCorrect=" + lastBalanceCorrect +
-                ", correctBalanceExists=" + correctBalanceExists +
+                ", transactionsCount=" + transactionsCount +
+                ", debitsCount=" + debitsCount +
+                ", creditsCount=" + creditsCount +
+                ", expectedBalance=" + expectedBalance +
+                ", lastShownBalance=" + lastShownBalance +
+                ", lastReturnedBalance=" + lastReturnedBalance +
+                ", transactions=" + transactionsST +
+                ", issuedTransactions=" + issuedTransactionsST +
                 '}';
+    }
+
+    public String getSortArrowsTime() {
+        return sortArrowsTime;
+    }
+
+    public void setSortArrowsTime(String sortArrowsTime) {
+        this.sortArrowsTime = sortArrowsTime;
     }
 }

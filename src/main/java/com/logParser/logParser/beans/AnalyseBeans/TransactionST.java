@@ -1,36 +1,32 @@
 package com.logParser.logParser.beans.AnalyseBeans;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-
 @Component
-@JsonInclude(Include.NON_DEFAULT)
-public class Transaction {
+
+public class TransactionST {
     private long roundId;
     private long operatorId;
     private String uid;
     private String gameType;
     private int tableId;
     private String seatId;
-    private Date date;
+    private String date;
     private String betType;
-    @JsonInclude(Include.ALWAYS)
     private double bet = 0;
-    @JsonInclude(Include.ALWAYS)
     private double win = 0;
     private String currency;
     private double balance;
     private int errorCode;
-    private String internalError;
+    private String errorDescription;
     private String transactionId;
     private long timestamp;
+    private int orderNum;
+    private boolean correctPlace;
 
-    public Transaction(long roundId, long operatorId, String uid, String gameType, int tableId, String seatId, Date date,
-                       String betType, double bet, double win, String currency, double balance, int errorCode,
-                       String internalError, String transactionId, long timestamp) {
+    public TransactionST(long roundId, long operatorId, String uid, String gameType, int tableId, String seatId, String date,
+                         String betType, double bet, double win, String currency, double balance, int errorCode,
+                         String errorDescription, String transactionId, long timestamp, int orderNum, boolean correctPlace) {
         this.roundId = roundId;
         this.operatorId = operatorId;
         this.uid = uid;
@@ -44,12 +40,23 @@ public class Transaction {
         this.currency = currency;
         this.balance = balance;
         this.errorCode = errorCode;
-        this.internalError = internalError;
+        this.errorDescription = errorDescription;
         this.transactionId = transactionId;
         this.timestamp = timestamp;
+        this.orderNum = orderNum;
+        this.correctPlace = correctPlace;
     }
 
-    public Transaction() {
+    public TransactionST() {
+    }
+
+    public TransactionST(long operatorId, long roundId, String uid, String transactionId, int errorCode, String errorDescription) {
+        this.operatorId = operatorId;
+        this.roundId = roundId;
+        this.uid = uid;
+        this.transactionId = transactionId;
+        this.errorCode = errorCode;
+        this.errorDescription = errorDescription;
     }
 
     public long getRoundId() {
@@ -100,11 +107,11 @@ public class Transaction {
         this.seatId = seatId;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -156,12 +163,12 @@ public class Transaction {
         this.errorCode = errorCode;
     }
 
-    public String getInternalError() {
-        return internalError;
+    public String getErrorDescription() {
+        return errorDescription;
     }
 
-    public void setInternalError(String internalError) {
-        this.internalError = internalError;
+    public void setErrorDescription(String errorDescription) {
+        this.errorDescription = errorDescription;
     }
 
     public String getTransactionId() {
@@ -180,6 +187,22 @@ public class Transaction {
         this.timestamp = timestamp;
     }
 
+    public boolean isCorrectPlace() {
+        return correctPlace;
+    }
+
+    public void setCorrectPlace(boolean correctPlace) {
+        this.correctPlace = correctPlace;
+    }
+
+    public int getOrderNum() {
+        return orderNum;
+    }
+
+    public void setOrderNum(int orderNum) {
+        this.orderNum = orderNum;
+    }
+
     @Override
     public String toString() {
         return "Transaction{" +
@@ -196,9 +219,11 @@ public class Transaction {
                 ", currency='" + currency + '\'' +
                 ", balance=" + balance +
                 ", errorCode=" + errorCode +
-                ", internalError='" + internalError + '\'' +
+                ", errorDescription='" + errorDescription + '\'' +
                 ", transactionId='" + transactionId + '\'' +
                 ", timestamp=" + timestamp +
+                ", orderNum=" + orderNum +
+                ", correctPlace=" + correctPlace +
                 '}';
     }
 }
