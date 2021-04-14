@@ -28,11 +28,6 @@ import static com.logParser.logParser.beans.Constants.GAMEIDS;
 @RequestMapping("/parse")
 public class ParseController {
 
-    @Autowired
-    SearchData searchData;
-    @Autowired
-    Answer answer;
-
     @PostMapping("/timestamps")
     public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) {
         if (searchData.getLogToParse().startsWith("**")) {
@@ -271,7 +266,7 @@ public class ParseController {
             }
             String transactionId = toParse.getString("transactionId");
             if (!transactions.containsKey(transactionId)) {
-                transactions.put(transactionId, new TransactionST((toParse.getLong("roundId")), operatorId, toParse.getString("uid"), GAMEIDS.get(toParse.getInt("gameId")), toParse.getInt("tableId"),
+                transactions.put(transactionId, new TransactionST((toParse.getLong("roundId")), operatorId, toParse.getString("uid"), GAMEIDS.get(toParse.getInt("gameId")), toParse.optInt("tableId"),
                         toParse.optString("seatId"), toParse.optLong("timestamp") > 0 ? formatDate(new java.util.Date((long) toParse.optLong("timestamp"))) : "No TS in Request", BETTYPES.get(toParse.getInt("betTypeID")), betAmount, winAmount, toParse.getString("currency"),
                         0, 0, "OK", transactionId, 0, transactionOrder.get(transactionId), true));
 
@@ -333,37 +328,60 @@ public class ParseController {
     private static LinkedHashMap<String, TransactionST> checkOrder(LinkedHashMap<String, TransactionST> transactions) {
 
         ArrayList<TransactionST> txns = new ArrayList<>(transactions.values());
+        ArrayList<TransactionST> txnsReserve = txns;
+        ArrayList<TransactionST> lastRoundTxns = new ArrayList<>();
         BidiMap<String, Integer> revertedBetTypes = BETTYPES.inverseBidiMap();
-        String revenueCalc[] = {"0", "0", "0"};
-        if (txns.size() > 0) {
-            revenueCalc = calculateRevenue(txns);
+        HashSet<String> users = new HashSet<>();
+        LinkedHashSet<Long> rounds = new LinkedHashSet<>();
+        for (TransactionST txn : txns){
+            users.add(txn.getUid());
+            rounds.add(txn.getRoundId());
         }
+
+
         txns.sort(Comparator.comparingLong(TransactionST::getTimestamp));
-        for (int i = 0; i <= txns.size() - 2; i++) {
-            if (txns.get(i + 1).getTimestamp() == txns.get(i).getTimestamp()) {
-                if (txns.get(i + 1).getBalance() != txns.get(i).getBalance()) {
-                    TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
-                    temp.setCorrectPlace(false);
+        for (String user : users) {
+            txns = txnsReserve;
+            for (int i = txns.size()-1; i>=0; i--) {
+                if (!txns.get(i).getUid().equals(user)) {
+                    txns.remove(txns.get(i));
                 }
-            } else {
-                if (revertedBetTypes.get(txns.get(i + 1).getBetType()) < 100) {
-                    if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != txns.get(i).getBalance() - txns.get(i + 1).getBet()) {
+            }
+            long lastRound = Collections.max(rounds);
+            for (TransactionST txn : txns) {
+                if (txn.getRoundId()==lastRound) {
+                    lastRoundTxns.add(txn);
+                }
+            }
+            String revenueCalc[] = {"0", "0", "0"};
+            if (lastRoundTxns.size() > 0) {
+                revenueCalc = calculateRevenue(lastRoundTxns);
+            }
+            for (int i = 0; i <= txns.size() - 2; i++) {
+                if (txns.get(i + 1).getTimestamp() == txns.get(i).getTimestamp()) {
+                    if (txns.get(i + 1).getBalance() != txns.get(i).getBalance()) {
                         TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
                         temp.setCorrectPlace(false);
                     }
                 } else {
-                    if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != txns.get(i).getBalance() + txns.get(i + 1).getWin()) {
-                        TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
-                        temp.setCorrectPlace(false);
+                    if (revertedBetTypes.get(txns.get(i + 1).getBetType()) < 100) {
+                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != txns.get(i).getBalance() - txns.get(i + 1).getBet()) {
+                            TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
+                            temp.setCorrectPlace(false);
+                        }
+                    } else {
+                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != txns.get(i).getBalance() + txns.get(i + 1).getWin()) {
+                            TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
+                            temp.setCorrectPlace(false);
+                        }
                     }
                 }
-            }
-            if (i == txns.size() - 2 && !revenueCalc[1].equals(revenueCalc[0]) && !revenueCalc[2].equals("10000000000000000000.00")) {
-                TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
-                temp.setCorrectPlace(false);
+                if (i == txns.size() - 2 && !revenueCalc[1].equals(revenueCalc[0]) && !revenueCalc[2].equals("10000000000000000000.00")) {
+                    TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
+                    temp.setCorrectPlace(false);
+                }
             }
         }
-
         return transactions;
     }
 
@@ -386,7 +404,7 @@ public class ParseController {
         for (TransactionST transaction : transactionsST) {
             debitSum = debitSum + transaction.getBet();
             creditSum = creditSum + transaction.getWin();
-            if (revertedBetTypes.get(transaction.getBetType()) < 100) {
+            if (transaction.getErrorCode()<100 && revertedBetTypes.get(transaction.getBetType()) < 100) {
                 if (revertedBetTypes.get(transaction.getBetType()) != 3) {
                     tipOnly = false;
                 }
