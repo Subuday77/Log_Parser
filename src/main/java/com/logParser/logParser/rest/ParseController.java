@@ -299,6 +299,12 @@ public class ParseController {
                 }
                 try {
                     transactions.get(transactionId).setBalance(toParse.getDouble("balance"));
+                    if (Double.parseDouble(formatMyDouble(toParse.getDouble("balance"))) != toParse.getDouble("balance")) {
+                        transactions.get(transactionId).setBalance(-1);
+                        transactions.get(transactionId).setErrorCode(103);
+                        transactions.get(transactionId).setErrorDescription("Invalid balance format or missing balance");
+//                        return transactions;
+                    }
                 } catch (JSONException e) {
                     try {
                         transactions.get(transactionId).setBalance(Double.parseDouble(toParse.getString("balance")));
@@ -306,7 +312,7 @@ public class ParseController {
                         transactions.get(transactionId).setBalance(-1);
                         transactions.get(transactionId).setErrorCode(103);
                         transactions.get(transactionId).setErrorDescription("Invalid balance format or missing balance");
-                        return transactions;
+//                        return transactions;
                     }
                 }
                 try {
@@ -317,7 +323,7 @@ public class ParseController {
                 if (transactions.get(transactionId).getTimestamp() == 0) {
                     transactions.get(transactionId).setErrorCode(105);
                     transactions.get(transactionId).setErrorDescription("No timestamp in response");
-                    return transactions;
+//                    return transactions;
                 }
             }
         }
@@ -333,7 +339,7 @@ public class ParseController {
         BidiMap<String, Integer> revertedBetTypes = BETTYPES.inverseBidiMap();
         HashSet<String> users = new HashSet<>();
         LinkedHashSet<Long> rounds = new LinkedHashSet<>();
-        for (TransactionST txn : txns){
+        for (TransactionST txn : txns) {
             users.add(txn.getUid());
             rounds.add(txn.getRoundId());
         }
@@ -342,14 +348,14 @@ public class ParseController {
         txns.sort(Comparator.comparingLong(TransactionST::getTimestamp));
         for (String user : users) {
             txns = txnsReserve;
-            for (int i = txns.size()-1; i>=0; i--) {
+            for (int i = txns.size() - 1; i >= 0; i--) {
                 if (!txns.get(i).getUid().equals(user)) {
                     txns.remove(txns.get(i));
                 }
             }
             long lastRound = Collections.max(rounds);
             for (TransactionST txn : txns) {
-                if (txn.getRoundId()==lastRound) {
+                if (txn.getRoundId() == lastRound) {
                     lastRoundTxns.add(txn);
                 }
             }
@@ -365,12 +371,12 @@ public class ParseController {
                     }
                 } else {
                     if (revertedBetTypes.get(txns.get(i + 1).getBetType()) < 100) {
-                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != txns.get(i).getBalance() - txns.get(i + 1).getBet()) {
+                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != Double.parseDouble(formatMyDouble(txns.get(i).getBalance() - txns.get(i + 1).getBet()))) {
                             TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
                             temp.setCorrectPlace(false);
                         }
                     } else {
-                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != txns.get(i).getBalance() + txns.get(i + 1).getWin()) {
+                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != Double.parseDouble(formatMyDouble(txns.get(i).getBalance() + txns.get(i + 1).getWin()))) {
                             TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
                             temp.setCorrectPlace(false);
                         }
@@ -397,25 +403,35 @@ public class ParseController {
         double minCreditBalance = 10000000000000000000.0;
         boolean tipOnly = true;
         boolean surrenderOnly = true;
+        boolean lastTransactionTip = false;
         ArrayList<TransactionST> debits = new ArrayList<>();
         ArrayList<TransactionST> credits = new ArrayList<>();
         HashMap<String, Double> seatAndBet = new HashMap<>();
         BidiMap<String, Integer> revertedBetTypes = BETTYPES.inverseBidiMap();
+        int index = 0;
         for (TransactionST transaction : transactionsST) {
+
             debitSum = debitSum + transaction.getBet();
             creditSum = creditSum + transaction.getWin();
-            if (transaction.getErrorCode()<100 && revertedBetTypes.get(transaction.getBetType()) < 100) {
+
+            if (transaction.getErrorCode() < 100 && revertedBetTypes.get(transaction.getBetType()) < 100) {
                 if (revertedBetTypes.get(transaction.getBetType()) != 3) {
                     tipOnly = false;
                 }
+                if (index == transactionsST.size() - 1 && revertedBetTypes.get(transaction.getBetType()) == 3 && !tipOnly) {
+                    lastTransactionTip = true;
+                }
                 debits.add(transaction);
                 seatAndBet.put(transaction.getSeatId(), transaction.getBet());
-                if (transaction.getBalance() > maxDebitBalance) {
+                if (transaction.getBalance() > maxDebitBalance && !lastTransactionTip) {
                     maxDebitBalance = transaction.getBalance();
                     maxDebitTransactionST = transaction;
                 }
                 if (transaction.getBalance() < minDebitBalance) {
                     minDebitBalance = transaction.getBalance();
+                }
+                if (lastTransactionTip) {
+                    maxCreditBalance = transaction.getBalance();
                 }
             } else {
                 credits.add(transaction);
@@ -430,6 +446,7 @@ public class ParseController {
                     minCreditBalance = transaction.getBalance();
                 }
             }
+            index++;
         }
         transactionsST.sort(Comparator.comparingLong(TransactionST::getTimestamp).reversed());
         res[0] = formatMyDouble(creditSum - debitSum);
@@ -441,6 +458,7 @@ public class ParseController {
             res[2] = formatMyDouble(minCreditBalance - maxDebitBalance - maxDebitTransactionST.getBet());
         } else {
             res[2] = formatMyDouble(maxCreditBalance - maxDebitBalance - maxDebitTransactionST.getBet());
+
         }
         return res;
     }
