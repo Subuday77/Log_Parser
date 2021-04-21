@@ -1,12 +1,11 @@
 package com.logParser.logParser.rest;
 
-import com.logParser.logParser.beans.Answer;
-import com.logParser.logParser.beans.SearchData;
 import com.logParser.logParser.beans.AnalyseBeans.ResultST;
 import com.logParser.logParser.beans.AnalyseBeans.RoundST;
 import com.logParser.logParser.beans.AnalyseBeans.TransactionST;
 import com.logParser.logParser.beans.AnalyseBeans.UserST;
-
+import com.logParser.logParser.beans.Answer;
+import com.logParser.logParser.beans.SearchData;
 import org.apache.commons.collections4.BidiMap;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +26,11 @@ import static com.logParser.logParser.beans.Constants.GAMEIDS;
 @CrossOrigin(origins = "*")
 @RequestMapping("/parse")
 public class ParseController {
+
+    @Autowired
+    SearchData searchData;
+    @Autowired
+    Answer answer;
 
     @PostMapping("/timestamps")
     public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) {
