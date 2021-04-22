@@ -9,6 +9,8 @@ import java.util.HashMap;
 @Component
 public class Constants {
     public static final String[] KEYS = {"operatorId", "playerTokenAtLaunch", "uid", "token", "currency", "balance"};
+    public static final String[] COLUMNS = {"Round ID", "Operator ID", "UID", "Game Type", "Table ID", "Seat ID", "Date",
+            "Bet Type", "Bet", "Win", "Currency", "Balance", "Error Code", "Transaction ID", "Timestamp", "Order"};
 
     public static final BidiMap<Integer, String> BETTYPES;
     public static final HashMap<Integer, String> GAMEIDS;

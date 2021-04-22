@@ -6,24 +6,24 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 
 @Component
-public class ResultST {
+public class ResultST  {
     private int transactionsCount;
-    private ArrayList<RoundST> roundsST;
+    private ArrayList<RoundST> rounds;
 
-    public ResultST(int transactionsCount, ArrayList<RoundST> roundsST) {
+    public ResultST(int transactionsCount, ArrayList<RoundST> rounds) {
         this.transactionsCount = transactionsCount;
-        this.roundsST = roundsST;
+        this.rounds = rounds;
     }
 
     public ResultST() {
     }
 
     public ArrayList<RoundST> getRounds() {
-        return roundsST;
+        return rounds;
     }
 
     public void setRounds(ArrayList<RoundST> roundsTS) {
-        this.roundsST = roundsST;
+        this.rounds = rounds;
     }
 
     public int getTransactionsCount() {
@@ -36,9 +36,9 @@ public class ResultST {
 
     @Override
     public String toString() {
-        return "Result{" +
+        return "ResultST{" +
                 "transactionsCount=" + transactionsCount +
-                ", roundsST=" + roundsST +
+                ", rounds=" + rounds +
                 '}';
     }
 }

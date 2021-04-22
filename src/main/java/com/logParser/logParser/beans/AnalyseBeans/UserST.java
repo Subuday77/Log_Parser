@@ -14,14 +14,14 @@ public class UserST {
     private double lastShownBalance;
     private double lastReturnedBalance;
     private String sortArrowsTime = "login";
-    private ArrayList<TransactionST> transactionsST;
-    private ArrayList<TransactionST> issuedTransactionsST;
+    private ArrayList<TransactionST> transactions;
+    private ArrayList<TransactionST> issuedTransactions;
 
     public UserST() {
     }
 
     public UserST(String uid, int transactionsCount, int debitsCount, int creditsCount, double expectedBalance,
-                  double lastShownBalance, double lastReturnedBalance, ArrayList<TransactionST> transactionsST, ArrayList<TransactionST> issuedTransactionsST) {
+                  double lastShownBalance, double lastReturnedBalance, ArrayList<TransactionST> transactions, ArrayList<TransactionST> issuedTransactions) {
         this.uid = uid;
         this.transactionsCount = transactionsCount;
         this.debitsCount = debitsCount;
@@ -29,8 +29,8 @@ public class UserST {
         this.expectedBalance = expectedBalance;
         this.lastShownBalance = lastShownBalance;
         this.lastReturnedBalance = lastReturnedBalance;
-        this.transactionsST = transactionsST;
-        this.issuedTransactionsST = issuedTransactionsST;
+        this.transactions = transactions;
+        this.issuedTransactions = issuedTransactions;
     }
 
     public String getUid() {
@@ -82,11 +82,11 @@ public class UserST {
     }
 
     public ArrayList<TransactionST> getTransactions() {
-        return transactionsST;
+        return transactions;
     }
 
     public void setTransactions(ArrayList<TransactionST> transactionsTS) {
-        this.transactionsST = transactionsTS;
+        this.transactions = transactionsTS;
     }
 
     public int getTransactionsCount() {
@@ -98,11 +98,11 @@ public class UserST {
     }
 
     public ArrayList<TransactionST> getIssuedTransactions() {
-        return issuedTransactionsST;
+        return issuedTransactions;
     }
 
     public void setIssuedTransactions(ArrayList<TransactionST> issuedTransactionsTS) {
-        this.issuedTransactionsST = issuedTransactionsTS;
+        this.issuedTransactions = issuedTransactionsTS;
     }
 
     @Override
@@ -115,8 +115,8 @@ public class UserST {
                 ", expectedBalance=" + expectedBalance +
                 ", lastShownBalance=" + lastShownBalance +
                 ", lastReturnedBalance=" + lastReturnedBalance +
-                ", transactions=" + transactionsST +
-                ", issuedTransactions=" + issuedTransactionsST +
+                ", transactions=" + transactions +
+                ", issuedTransactions=" + issuedTransactions +
                 '}';
     }
 

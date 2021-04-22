@@ -1,12 +1,11 @@
 package com.logParser.logParser.rest;
 
+import com.google.gson.Gson;
+import com.logParser.logParser.beans.AnalyseBeans.*;
 import com.logParser.logParser.beans.Answer;
 import com.logParser.logParser.beans.SearchData;
-import com.logParser.logParser.beans.AnalyseBeans.ResultST;
-import com.logParser.logParser.beans.AnalyseBeans.RoundST;
-import com.logParser.logParser.beans.AnalyseBeans.TransactionST;
-import com.logParser.logParser.beans.AnalyseBeans.UserST;
 
+import com.logParser.logParser.output.ExcelOutput;
 import org.apache.commons.collections4.BidiMap;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -27,6 +28,10 @@ import static com.logParser.logParser.beans.Constants.GAMEIDS;
 @CrossOrigin(origins = "*")
 @RequestMapping("/parse")
 public class ParseController {
+    @Autowired
+    ExcelOutput excelOutput;
+    @Autowired
+    HttpServletRequest servletRequest;
 
     @PostMapping("/timestamps")
     public ResponseEntity<?> parseForTs(@RequestBody SearchData searchData) {
@@ -118,6 +123,19 @@ public class ParseController {
         ResultST resultST = createResult(operatorId, searchData);
 
         return new ResponseEntity<ResultST>(resultST, HttpStatus.OK);
+    }
+
+    @PostMapping("/report")
+    public ResponseEntity<?> createReport(@RequestParam(name = "operator") long operatorId, @RequestBody String result) {
+        Gson gson = new Gson();
+        ResultST resultST = gson.fromJson(result, ResultST.class);
+        return excelOutput.createReport(operatorId, resultST);
+    }
+
+    @GetMapping("/getfile")
+    public ResponseEntity<?> getFile() throws IOException {
+        String fileName = servletRequest.getHeader("fileName");
+        return excelOutput.sendFile(fileName);
     }
 
     private static ResultST createResult(long operatorId, SearchData searchData) {
