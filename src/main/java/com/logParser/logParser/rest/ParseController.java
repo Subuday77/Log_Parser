@@ -133,8 +133,8 @@ public class ParseController {
     }
 
     @GetMapping("/getfile")
-    public ResponseEntity<?> getFile() throws IOException {
-        String fileName = servletRequest.getHeader("fileName");
+    public ResponseEntity<?> getFile(@RequestParam(name = "filename") String fileName) throws IOException {
+//        String fileName = servletRequest.getHeader("fileName");
         return excelOutput.sendFile(fileName);
     }
 
