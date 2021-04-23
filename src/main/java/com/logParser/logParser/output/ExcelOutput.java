@@ -6,6 +6,7 @@ import com.logParser.logParser.beans.AnalyseBeans.UserST;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -293,7 +294,32 @@ public class ExcelOutput {
                 row.createCell(11).setCellValue("Passed");
                 row.getCell(11).setCellStyle(green);
             }
+// Get rid of formulas
+            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            CellReference cellReference = new CellReference("I" + (rowNum - 2));
+            row = sheet.getRow(cellReference.getRow());
+            Cell cell = row.getCell(cellReference.getCol());
+            evaluator.evaluateFormulaCell(cell);
+            Double tempValue = cell.getNumericCellValue();
+            cell.removeFormula();
+            cell.setCellValue(tempValue);
 
+            cellReference = new CellReference("J" + (rowNum - 2));
+            row = sheet.getRow(cellReference.getRow());
+            cell = row.getCell(cellReference.getCol());
+            evaluator.evaluateFormulaCell(cell);
+            tempValue = cell.getNumericCellValue();
+            cell.removeFormula();
+            cell.setCellValue(tempValue);
+
+            cellReference = new CellReference("L" + (rowNum - 2));
+            row = sheet.getRow(cellReference.getRow());
+            cell = row.getCell(cellReference.getCol());
+            evaluator.evaluateFormulaCell(cell);
+            tempValue = cell.getNumericCellValue();
+            cell.removeFormula();
+            cell.setCellValue(tempValue);
+// End of get rid of formulas
             for (int i = 0; i < COLUMNS.length; i++) {
                 sheet.autoSizeColumn(i);
             }
