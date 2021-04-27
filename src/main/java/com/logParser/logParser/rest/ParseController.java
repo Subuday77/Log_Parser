@@ -400,7 +400,7 @@ public class ParseController {
                         }
                     }
                 }
-                if (i == txns.size() - 2 && !revenueCalc[1].equals(revenueCalc[0]) && !revenueCalc[2].equals("10000000000000000000.00")) {
+                if (i == txns.size() - 2 && !revenueCalc[1].equals(revenueCalc[0]) && !revenueCalc[1].equals(revenueCalc[2]) && !revenueCalc[2].equals("10000000000000000000.00")) {
                     TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
                     temp.setCorrectPlace(false);
                 }
@@ -441,7 +441,7 @@ public class ParseController {
                 }
                 debits.add(transaction);
                 seatAndBet.put(transaction.getSeatId(), transaction.getBet());
-                if (transaction.getBalance() > maxDebitBalance && !lastTransactionTip) {
+                if (transaction.getBalance() > maxDebitBalance && !lastTransactionTip && credits.size()==0) {
                     maxDebitBalance = transaction.getBalance();
                     maxDebitTransactionST = transaction;
                 }

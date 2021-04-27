@@ -233,6 +233,12 @@ public class ExcelOutput {
                             format.setDataFormat(df.getFormat("0"));
                             cell.setCellStyle(format);
                         }
+                        if (values.get(i) instanceof Double) {
+                            DataFormat df = workbook.createDataFormat();
+                            CellStyle format = workbook.getCellStyleAt(bodyCellStyle.getIndex()).copy();
+                            format.setDataFormat(df.getFormat("0.00"));
+                            cell.setCellStyle(format);
+                        }
                     }
                     if (rowNum % 2 == 0) {
                         cell.setCellStyle(bodyCellStyleWithColor);
@@ -247,6 +253,12 @@ public class ExcelOutput {
                             format.setDataFormat(df.getFormat("0"));
                             cell.setCellStyle(format);
                         }
+                        if (values.get(i) instanceof Double) {
+                            DataFormat df = workbook.createDataFormat();
+                            CellStyle format = workbook.getCellStyleAt(bodyCellStyleWithColor.getIndex()).copy();
+                            format.setDataFormat(df.getFormat("0.00"));
+                            cell.setCellStyle(format);
+                        }
                     }
                     if (!txns.get(rowNum - 1).isCorrectPlace()) {
                         cell.setCellStyle(bodyCellStyleWithError);
@@ -259,6 +271,12 @@ public class ExcelOutput {
                             DataFormat df = workbook.createDataFormat();
                             CellStyle format = workbook.getCellStyleAt(bodyCellStyleWithError.getIndex()).copy();
                             format.setDataFormat(df.getFormat("0"));
+                            cell.setCellStyle(format);
+                        }
+                        if (values.get(i) instanceof Double) {
+                            DataFormat df = workbook.createDataFormat();
+                            CellStyle format = workbook.getCellStyleAt(bodyCellStyleWithError.getIndex()).copy();
+                            format.setDataFormat(df.getFormat("0.00"));
                             cell.setCellStyle(format);
                         }
                     }
