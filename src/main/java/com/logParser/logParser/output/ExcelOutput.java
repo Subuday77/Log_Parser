@@ -220,6 +220,12 @@ public class ExcelOutput {
                             format.setDataFormat(df.getFormat("0"));
                             cell.setCellStyle(format);
                         }
+                        if (values.get(i) instanceof Double) {
+                            DataFormat df = workbook.createDataFormat();
+                            CellStyle format = workbook.getCellStyleAt(bodyCellStyleTopRow.getIndex()).copy();
+                            format.setDataFormat(df.getFormat("0.00"));
+                            cell.setCellStyle(format);
+                        }
                     } else {
                         cell.setCellStyle(bodyCellStyle);
                         if (i == COLUMNS.length - 1) {
@@ -284,23 +290,35 @@ public class ExcelOutput {
                 rowNum++;
                 row = sheet.createRow(rowNum);
             }
+            DataFormat df = workbook.createDataFormat();
+            CellStyle format = workbook.createCellStyle();
+            format.setDataFormat(df.getFormat("0.00"));
             row.createCell(8).setCellFormula("SUM(I2:I" + rowNum + ")");
+            row.getCell(8).setCellStyle(format);
             row.createCell(9).setCellFormula("SUM(J2:J" + rowNum + ")");
+            row.getCell(9).setCellStyle(format);
             row.createCell(10).setCellValue("Expected:");
             rowNum++;
             row.createCell(11).setCellFormula("J" + rowNum + "-" + "I" + rowNum);
+            row.getCell(11).setCellStyle(format);
             row = sheet.createRow(rowNum);
             row.createCell(10).setCellValue("By timestamp:");
             row.createCell(11).setCellValue(user.getLastShownBalance());
+            row.getCell(11).setCellStyle(format);
             if (user.getLastShownBalance() != user.getExpectedBalance()) {
-                row.getCell(11).setCellStyle(red);
+                CellStyle format1 = workbook.getCellStyleAt(red.getIndex()).copy();
+                format1.setDataFormat(df.getFormat("0.00"));
+                row.getCell(11).setCellStyle(format1);
             }
             rowNum++;
             row = sheet.createRow(rowNum);
             row.createCell(10).setCellValue("By balance:");
             row.createCell(11).setCellValue(user.getLastReturnedBalance());
+            row.getCell(11).setCellStyle(format);
             if (user.getLastReturnedBalance() != user.getExpectedBalance()) {
-                row.getCell(11).setCellStyle(red);
+                CellStyle format1 = workbook.getCellStyleAt(red.getIndex()).copy();
+                format1.setDataFormat(df.getFormat("0.00"));
+                row.getCell(11).setCellStyle(format1);
             }
             rowNum++;
             row = sheet.createRow(rowNum);
