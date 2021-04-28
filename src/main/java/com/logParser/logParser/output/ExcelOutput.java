@@ -33,7 +33,7 @@ public class ExcelOutput {
 
     public ResponseEntity<?> createReport(long operatorId, ResultST resultST) {
         String date = simpleDateFormat.format(new Date());
-        String path = "files/" + "ST_" + operatorId + "_" + resultST.getRounds().get(0).getRoundId() + "_" + date + ".xlsx";
+        String path = "files/" + "ST_" + operatorId + "_" + resultST.getRounds().get(0).getUsersST().size()+"PL" + "_" + date + ".xlsx";
         XSSFWorkbook workbook = null;
         Sheet sheet = null;
         File file = new File(path);
