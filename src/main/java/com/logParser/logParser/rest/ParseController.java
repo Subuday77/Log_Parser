@@ -7,6 +7,7 @@ import com.logParser.logParser.beans.SearchData;
 
 import com.logParser.logParser.output.ExcelOutput;
 import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -250,7 +251,7 @@ public class ParseController {
                 line = line.substring(line.indexOf("{"));
                 responsesToParse = responsesToParse.concat(line + "\n");
                 JSONObject temp = new JSONObject(line);
-                if (transactionOrder.containsKey(temp.getString("transactionId"))) {
+                if (transactionOrder.containsKey(temp.optString("transactionId"))) {
                     transactionOrder.replace(temp.getString("transactionId"), -1, orderNum);
                     orderNum++;
                 }
@@ -305,7 +306,7 @@ public class ParseController {
 
         for (String response : responses) {
             JSONObject toParse = new JSONObject(response);
-            String transactionId = toParse.getString("transactionId");
+            String transactionId = toParse.optString("transactionId");
             if (!transactions.containsKey(transactionId)) {
                 transactions.put(transactionId, new TransactionST(operatorId, toParse.optLong("roundId"), toParse.optString("uid"), transactionId, 104, "Request not found"));
             }
@@ -316,8 +317,22 @@ public class ParseController {
                     transactions.get(transactionId).setErrorCode(Integer.parseInt(toParse.getString("errorCode")));
                 }
                 try {
+
+                    String[] toCheckFormat = response.split(",");
+                    String balanceToCheckFormat = "";
+                    for (String val : toCheckFormat) {
+                        if (val.contains("balance")) {
+                            balanceToCheckFormat = val;
+                            if (balanceToCheckFormat.endsWith("\"")) {
+                                balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."), balanceToCheckFormat.length() - 1);
+                            } else {
+                                balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."));
+                            }
+                        }
+                    }
+                    boolean flag = balanceToCheckFormat.length() > 3 ? true : false;
                     transactions.get(transactionId).setBalance(toParse.getDouble("balance"));
-                    if (Double.parseDouble(formatMyDouble(toParse.getDouble("balance"))) != toParse.getDouble("balance")) {
+                    if (Double.parseDouble(formatMyDouble(toParse.getDouble("balance"))) != toParse.getDouble("balance") || flag) {
                         transactions.get(transactionId).setBalance(-1);
                         transactions.get(transactionId).setErrorCode(103);
                         transactions.get(transactionId).setErrorDescription("Invalid balance format or missing balance");
@@ -362,8 +377,15 @@ public class ParseController {
             rounds.add(txn.getRoundId());
         }
 
+//       txns.sort(Comparator.comparingLong(TransactionST::getTimestamp).thenComparingDouble(TransactionST::getBet).reversed().thenComparingDouble(TransactionST::getWin).reversed());
 
-        txns.sort(Comparator.comparingLong(TransactionST::getTimestamp));
+        Collections.sort(txns, new Comparator<TransactionST>() {
+            @Override
+            public int compare(TransactionST o1, TransactionST o2) {
+                return new CompareToBuilder().append(o1.getTimestamp(), o2.getTimestamp()).append(o2.getBet(), o1.getBet()).
+                        append(o2.getWin(), o1.getWin()).toComparison();
+            }
+        });
         for (String user : users) {
             txns = txnsReserve;
             for (int i = txns.size() - 1; i >= 0; i--) {
@@ -441,7 +463,7 @@ public class ParseController {
                 }
                 debits.add(transaction);
                 seatAndBet.put(transaction.getSeatId(), transaction.getBet());
-                if (transaction.getBalance() > maxDebitBalance && !lastTransactionTip && credits.size()==0) {
+                if (transaction.getBalance() > maxDebitBalance && !lastTransactionTip && credits.size() == 0) {
                     maxDebitBalance = transaction.getBalance();
                     maxDebitTransactionST = transaction;
                 }
