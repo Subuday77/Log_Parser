@@ -317,16 +317,24 @@ public class ParseController {
                     transactions.get(transactionId).setErrorCode(Integer.parseInt(toParse.getString("errorCode")));
                 }
                 try {
-
                     String[] toCheckFormat = response.split(",");
                     String balanceToCheckFormat = "";
                     for (String val : toCheckFormat) {
                         if (val.contains("balance")) {
                             balanceToCheckFormat = val;
-                            if (balanceToCheckFormat.endsWith("\"")) {
-                                balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."), balanceToCheckFormat.length() - 1);
-                            } else {
-                                balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."));
+                            try {
+                                if (balanceToCheckFormat.endsWith("\"")) {
+                                    balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."), balanceToCheckFormat.length() - 1);
+                                } else {
+                                    balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."));
+                                }
+                            } catch (StringIndexOutOfBoundsException e) {
+//                                try {
+//                                    int temp = Integer.parseInt(balanceToCheckFormat.substring(balanceToCheckFormat.indexOf(":") + 1));
+//                                    balanceToCheckFormat = ".00";
+//                                } catch (NumberFormatException exception) {
+                                balanceToCheckFormat = "0000";
+//                                }
                             }
                         }
                     }
@@ -336,7 +344,6 @@ public class ParseController {
                         transactions.get(transactionId).setBalance(-1);
                         transactions.get(transactionId).setErrorCode(103);
                         transactions.get(transactionId).setErrorDescription("Invalid balance format or missing balance");
-//                        return transactions;
                     }
                 } catch (JSONException e) {
                     try {
