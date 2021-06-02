@@ -323,8 +323,12 @@ public class ParseController {
                         if (val.contains("balance")) {
                             balanceToCheckFormat = val;
                             try {
-                                if (balanceToCheckFormat.endsWith("\"")) {
-                                    balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."), balanceToCheckFormat.length() - 1);
+                                if (balanceToCheckFormat.endsWith("\"") || balanceToCheckFormat.endsWith("}")) {
+                                    if (balanceToCheckFormat.endsWith("\"}")) {
+                                        balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."), balanceToCheckFormat.length() - 2);
+                                    } else {
+                                        balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."), balanceToCheckFormat.length() - 1);
+                                    }
                                 } else {
                                     balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."));
                                 }
@@ -352,7 +356,6 @@ public class ParseController {
                         transactions.get(transactionId).setBalance(-1);
                         transactions.get(transactionId).setErrorCode(103);
                         transactions.get(transactionId).setErrorDescription("Invalid balance format or missing balance");
-//                        return transactions;
                     }
                 }
                 try {
@@ -363,7 +366,6 @@ public class ParseController {
                 if (transactions.get(transactionId).getTimestamp() == 0) {
                     transactions.get(transactionId).setErrorCode(105);
                     transactions.get(transactionId).setErrorDescription("No timestamp in response");
-//                    return transactions;
                 }
             }
         }
@@ -418,12 +420,12 @@ public class ParseController {
                     }
                 } else {
                     if (revertedBetTypes.get(txns.get(i + 1).getBetType()) < 100) {
-                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != Double.parseDouble(formatMyDouble(txns.get(i).getBalance() - txns.get(i + 1).getBet()))) {
+                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() > Double.parseDouble(formatMyDouble(txns.get(i).getBalance() - txns.get(i + 1).getBet()))) {
                             TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
                             temp.setCorrectPlace(false);
                         }
                     } else {
-                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() != Double.parseDouble(formatMyDouble(txns.get(i).getBalance() + txns.get(i + 1).getWin()))) {
+                        if (txns.get(i + 1).getBalance() != txns.get(i).getBalance() && txns.get(i + 1).getBalance() < Double.parseDouble(formatMyDouble(txns.get(i).getBalance() + txns.get(i + 1).getWin()))) {
                             TransactionST temp = transactions.get(txns.get(i + 1).getTransactionId());
                             temp.setCorrectPlace(false);
                         }
