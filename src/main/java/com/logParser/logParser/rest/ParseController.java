@@ -333,12 +333,19 @@ public class ParseController {
                                     balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf("."));
                                 }
                             } catch (StringIndexOutOfBoundsException e) {
-//                                try {
-//                                    int temp = Integer.parseInt(balanceToCheckFormat.substring(balanceToCheckFormat.indexOf(":") + 1));
-//                                    balanceToCheckFormat = ".00";
-//                                } catch (NumberFormatException exception) {
-                                balanceToCheckFormat = "0000";
-//                                }
+                                balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf(":") + 1);
+                                while (balanceToCheckFormat.charAt(balanceToCheckFormat.length() - 1) < 48 || balanceToCheckFormat.charAt(balanceToCheckFormat.length() - 1) > 57) {
+                                    if (balanceToCheckFormat.startsWith("\"")){
+                                        balanceToCheckFormat = balanceToCheckFormat.substring(1);
+                                    }
+                                    balanceToCheckFormat = balanceToCheckFormat.substring(0, balanceToCheckFormat.length() - 1);
+                                }
+                                try {
+                                    int temp = Integer.parseInt(balanceToCheckFormat);
+                                    balanceToCheckFormat = ".00";
+                                } catch (NumberFormatException exception) {
+                                    balanceToCheckFormat = "0000";
+                                }
                             }
                         }
                     }
