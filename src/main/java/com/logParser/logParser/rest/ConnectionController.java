@@ -14,6 +14,6 @@ public class ConnectionController {
 
     @GetMapping ("/check")
     public ResponseEntity<?>connectionCheck(){
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<String>("3.14.0", HttpStatus.OK);
     }
 }
