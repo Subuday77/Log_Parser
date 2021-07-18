@@ -181,7 +181,6 @@ public class ParseController {
                 transactionCount = transactionCount + users.get(users.size() - 1).getTransactionsCount();
             }
         }
-
         RoundST roundST = new RoundST(roundId, users.size(), transactionCount, users);
 
         return roundST;
@@ -335,7 +334,7 @@ public class ParseController {
                             } catch (StringIndexOutOfBoundsException e) {
                                 balanceToCheckFormat = balanceToCheckFormat.substring(balanceToCheckFormat.indexOf(":") + 1);
                                 while (balanceToCheckFormat.charAt(balanceToCheckFormat.length() - 1) < 48 || balanceToCheckFormat.charAt(balanceToCheckFormat.length() - 1) > 57) {
-                                    if (balanceToCheckFormat.startsWith("\"")){
+                                    if (balanceToCheckFormat.startsWith("\"")) {
                                         balanceToCheckFormat = balanceToCheckFormat.substring(1);
                                     }
                                     balanceToCheckFormat = balanceToCheckFormat.substring(0, balanceToCheckFormat.length() - 1);
@@ -381,10 +380,7 @@ public class ParseController {
     }
 
     private static LinkedHashMap<String, TransactionST> checkOrder(LinkedHashMap<String, TransactionST> transactions) {
-
         ArrayList<TransactionST> txns = new ArrayList<>(transactions.values());
-        ArrayList<TransactionST> txnsReserve = txns;
-        ArrayList<TransactionST> lastRoundTxns = new ArrayList<>();
         BidiMap<String, Integer> revertedBetTypes = BETTYPES.inverseBidiMap();
         HashSet<String> users = new HashSet<>();
         LinkedHashSet<Long> rounds = new LinkedHashSet<>();
@@ -393,20 +389,20 @@ public class ParseController {
             rounds.add(txn.getRoundId());
         }
 
-//       txns.sort(Comparator.comparingLong(TransactionST::getTimestamp).thenComparingDouble(TransactionST::getBet).reversed().thenComparingDouble(TransactionST::getWin).reversed());
-
-        Collections.sort(txns, new Comparator<TransactionST>() {
-            @Override
-            public int compare(TransactionST o1, TransactionST o2) {
-                return new CompareToBuilder().append(o1.getTimestamp(), o2.getTimestamp()).append(o2.getBet(), o1.getBet()).
-                        append(o2.getWin(), o1.getWin()).toComparison();
-            }
-        });
+        ArrayList<TransactionST> tempTransactionList = new ArrayList<>();
         for (String user : users) {
-            txns = txnsReserve;
+            ArrayList<TransactionST> lastRoundTxns = new ArrayList<>();
+            Collections.sort(txns, new Comparator<TransactionST>() {
+                @Override
+                public int compare(TransactionST o1, TransactionST o2) {
+                    return new CompareToBuilder().append(o1.getTimestamp(), o2.getTimestamp()).append(o2.getBet(), o1.getBet()).
+                            append(o2.getWin(), o1.getWin()).toComparison();
+                }
+            });
             for (int i = txns.size() - 1; i >= 0; i--) {
                 if (!txns.get(i).getUid().equals(user)) {
-                    txns.remove(txns.get(i));
+                    tempTransactionList.add(txns.get(i));
+                    txns.remove(i);
                 }
             }
             long lastRound = Collections.max(rounds);
@@ -415,10 +411,12 @@ public class ParseController {
                     lastRoundTxns.add(txn);
                 }
             }
+
             String revenueCalc[] = {"0", "0", "0"};
             if (lastRoundTxns.size() > 0) {
                 revenueCalc = calculateRevenue(lastRoundTxns);
             }
+
             for (int i = 0; i <= txns.size() - 2; i++) {
                 if (txns.get(i + 1).getTimestamp() == txns.get(i).getTimestamp()) {
                     if (txns.get(i + 1).getBalance() != txns.get(i).getBalance()) {
@@ -443,6 +441,8 @@ public class ParseController {
                     temp.setCorrectPlace(false);
                 }
             }
+            txns = (ArrayList<TransactionST>) tempTransactionList.clone();
+            tempTransactionList.clear();
         }
         return transactions;
     }
