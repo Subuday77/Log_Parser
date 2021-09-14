@@ -230,6 +230,7 @@ public class ParseController {
 
     private static LinkedHashMap<String, TransactionST> prepareTransactionsForConstCheck(long operatorId, String linesToParse) {
         int orderNum = 1;
+        linesToParse = linesToParse.replaceAll(" status 200","");
         String[] lines = linesToParse.split("\n");
         String requestsToParse = "";
         String responsesToParse = "";
@@ -348,7 +349,7 @@ public class ParseController {
                             }
                         }
                     }
-                    boolean flag = balanceToCheckFormat.length() > 3 ? true : false;
+                    boolean flag = balanceToCheckFormat.length() > 3;
                     transactions.get(transactionId).setBalance(toParse.getDouble("balance"));
                     if (Double.parseDouble(formatMyDouble(toParse.getDouble("balance"))) != toParse.getDouble("balance") || flag) {
                         transactions.get(transactionId).setBalance(-1);
